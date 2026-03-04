@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "domain-driven-design",
+  "owner": "joaquimscosta",
+  "repo": "arkhe-claude-plugins",
+  "path": "plugins/spring-boot/skills/domain-driven-design",
+  "branch": "main",
+  "sha": "9d092f231c6cec96afbef1a4f6e0e7b9941ef219",
+  "source": "manual"
+}
