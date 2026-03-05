@@ -1,0 +1,13 @@
+services:
+  commit2fund-db:
+    container_name: commit2fund-db
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=commit2fund
+      - POSTGRES_PASSWORD=commit2fund
+      - POSTGRES_DB=commit2fund
+    ports:
+      - "2222:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
