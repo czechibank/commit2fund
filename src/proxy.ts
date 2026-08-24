@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { betterFetch } from "@better-fetch/fetch";
+import { getSessionCookie } from "better-auth/cookies";
 
 const protectedPaths = ["/dashboard", "/campaigns", "/contributions"];
 const authPaths = ["/signin", "/signup"];
@@ -12,16 +12,17 @@ export async function proxy(request: NextRequest) {
 
   if (!isProtected && !isAuthPath) return NextResponse.next();
 
-  const { data: session } = await betterFetch<{ user: { id: string } }>("/api/auth/get-session", {
-    baseURL: request.nextUrl.origin,
-    headers: { cookie: request.headers.get("cookie") ?? "" },
-  });
+  // Optimistic cookie check only — no network round-trip. The middleware
+  // fetching its own public URL per request breaks whenever the host's NAT
+  // misbehaves and is slow even when it doesn't. Server pages verify the
+  // session for real via auth.api.getSession.
+  const sessionCookie = getSessionCookie(request);
 
-  if (isProtected && !session) {
+  if (isProtected && !sessionCookie) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
-  if (isAuthPath && session) {
+  if (isAuthPath && sessionCookie) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
