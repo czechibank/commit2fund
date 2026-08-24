@@ -31,6 +31,25 @@ export const campaignRepository = {
     };
   },
 
+  async findCompleted(page: number, limit: number) {
+    const where = eq(campaigns.status, "completed");
+    const [items, totalResult] = await Promise.all([
+      db
+        .select()
+        .from(campaigns)
+        .where(where)
+        .orderBy(desc(campaigns.updatedAt))
+        .limit(limit)
+        .offset((page - 1) * limit),
+      db.select({ count: count() }).from(campaigns).where(where),
+    ]);
+    const total = totalResult[0]?.count ?? 0;
+    return {
+      items,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  },
+
   async findByCreatorId(creatorId: string, page: number, limit: number) {
     const where = eq(campaigns.creatorId, creatorId);
     const [items, totalResult] = await Promise.all([
@@ -55,7 +74,15 @@ export const campaignRepository = {
     return result[0]!;
   },
 
-  async update(id: string, data: Partial<Pick<Campaign, "title" | "description" | "status">>) {
+  async update(
+    id: string,
+    data: Partial<
+      Pick<
+        Campaign,
+        "title" | "description" | "status" | "czechibankAccountNumber" | "czechibankAccountId"
+      >
+    >,
+  ) {
     const result = await db
       .update(campaigns)
       .set({ ...data, updatedAt: new Date() })

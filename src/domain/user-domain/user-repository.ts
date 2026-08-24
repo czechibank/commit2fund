@@ -23,4 +23,18 @@ export const userRepository = {
       .returning();
     return result[0] ?? null;
   },
+
+  async unlinkCzechibank(userId: string) {
+    const result = await db
+      .update(user)
+      .set({
+        czechibankApiKey: null,
+        czechibankUserId: null,
+        czechibankLinked: false,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId))
+      .returning();
+    return result[0] ?? null;
+  },
 };

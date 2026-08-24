@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { contributions, campaigns } from "@/lib/db/schema";
+import { contributions, campaigns, user } from "@/lib/db/schema";
 import { eq, count, desc } from "drizzle-orm";
 
 export type Contribution = typeof contributions.$inferSelect;
@@ -37,6 +37,20 @@ export const contributionRepository = {
       items,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
+  },
+
+  async findByCampaignId(campaignId: string) {
+    return db
+      .select({
+        id: contributions.id,
+        amount: contributions.amount,
+        createdAt: contributions.createdAt,
+        contributorName: user.name,
+      })
+      .from(contributions)
+      .innerJoin(user, eq(contributions.contributorId, user.id))
+      .where(eq(contributions.campaignId, campaignId))
+      .orderBy(desc(contributions.createdAt));
   },
 
   async countByCampaignId(campaignId: string) {

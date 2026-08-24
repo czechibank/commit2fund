@@ -21,6 +21,16 @@ export const userService = {
     );
   },
 
+  unlinkCzechibankResult(userId: string) {
+    return ResultAsync.fromPromise(userRepository.unlinkCzechibank(userId), (e) =>
+      fromUnknown(e),
+    ).andThen((updated) =>
+      updated
+        ? ResultAsync.fromPromise(Promise.resolve(updated), (e) => fromUnknown(e))
+        : errAsync(notFound("User not found")),
+    );
+  },
+
   getUserResult(userId: string) {
     return ResultAsync.fromPromise(userRepository.findById(userId), (e) => fromUnknown(e)).andThen(
       (u) =>

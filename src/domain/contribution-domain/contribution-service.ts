@@ -24,30 +24,28 @@ export const contributionService = {
       if (!campaign.czechibankAccountNumber)
         return errAsync(badRequest("Campaign has no bank account"));
 
+      const remaining = campaign.targetAmount - campaign.currentAmount;
+      const effectiveAmount = Math.min(input.amount, remaining);
+
       return czechibankClient
-        .getBankAccounts(contributor.czechibankApiKey, 1, 1)
-        .andThen((accounts) => {
-          if (accounts.items.length === 0) return errAsync(badRequest("No bank account found"));
-          const fromAccount = accounts.items[0]!;
-          return czechibankClient.createTransaction(
-            contributor.czechibankApiKey!,
-            fromAccount.number,
-            campaign.czechibankAccountNumber!,
-            input.amount,
-          );
-        })
+        .createTransaction(
+          contributor.czechibankApiKey!,
+          input.fromBankAccountNumber,
+          campaign.czechibankAccountNumber!,
+          effectiveAmount,
+        )
         .andThen((transaction) =>
           ResultAsync.fromPromise(
             contributionRepository.create({
               campaignId: input.campaignId,
               contributorId: userId,
-              amount: input.amount,
+              amount: effectiveAmount,
               czechibankTransactionId: transaction.id,
             }),
             (e) => fromUnknown(e),
           ).andThen((contribution) =>
             ResultAsync.fromPromise(
-              campaignRepository.incrementCurrentAmount(input.campaignId, input.amount),
+              campaignRepository.incrementCurrentAmount(input.campaignId, effectiveAmount),
               (e) => fromUnknown(e),
             ).andThen((updatedCampaign) => {
               if (
@@ -57,9 +55,17 @@ export const contributionService = {
                 return ResultAsync.fromPromise(
                   campaignRepository.update(input.campaignId, { status: "completed" }),
                   (e) => fromUnknown(e),
-                ).map(() => contribution);
+                ).map(() => ({
+                  ...contribution,
+                  effectiveAmount,
+                  capped: effectiveAmount < input.amount,
+                }));
               }
-              return okAsync(contribution);
+              return okAsync({
+                ...contribution,
+                effectiveAmount,
+                capped: effectiveAmount < input.amount,
+              });
             }),
           ),
         );

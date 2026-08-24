@@ -61,6 +61,21 @@ export async function updateCampaign(
   return { success: true, data: { id: result.value.id } };
 }
 
+export async function createBankAccountForCampaign(
+  campaignId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const session = await getSession();
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  const result = await campaignService.createBankAccountForCampaignResult(
+    session.user.id,
+    campaignId,
+  );
+
+  if (result.isErr()) return { success: false, error: result.error.message };
+  return { success: true, data: { id: result.value.id } };
+}
+
 export async function cancelCampaign(campaignId: string): Promise<ActionResult<{ id: string }>> {
   const session = await getSession();
   if (!session) return { success: false, error: "Unauthorized" };

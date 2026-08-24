@@ -4,7 +4,7 @@ import { betterFetch } from "@better-fetch/fetch";
 const protectedPaths = ["/dashboard", "/campaigns", "/contributions"];
 const authPaths = ["/signin", "/signup"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p));

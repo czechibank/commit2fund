@@ -21,3 +21,13 @@ export async function linkCzechibankAccount(
   if (result.isErr()) return { success: false, error: result.error.message };
   return { success: true, data: { linked: true } };
 }
+
+export async function unlinkCzechibankAccount(): Promise<ActionResult<{ unlinked: boolean }>> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  const result = await userService.unlinkCzechibankResult(session.user.id);
+
+  if (result.isErr()) return { success: false, error: result.error.message };
+  return { success: true, data: { unlinked: true } };
+}
