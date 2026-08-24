@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { campaignService } from "@/domain/campaign-domain/campaign-service";
+
+// Without this the page is prerendered at build time and the campaign list
+// freezes at whatever the build saw (errors render as empty lists).
+export const dynamic = "force-dynamic";
 import { CampaignCard } from "@/components/campaign/campaign-card";
 import { EmptyState } from "@/components/empty-state";
 
