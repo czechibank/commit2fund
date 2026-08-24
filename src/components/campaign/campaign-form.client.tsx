@@ -41,7 +41,9 @@ export function CampaignForm({ mode, campaignId, defaultValues }: CampaignFormPr
   useEffect(() => {
     if (state?.success) {
       toast.success(
-        mode === "create" ? "Campaign created successfully" : "Campaign updated successfully",
+        mode === "create"
+          ? "Campaign created. Now share it, campaigns don't fund themselves."
+          : "Campaign updated.",
       );
       router.push("/campaigns");
     } else if (state && !state.success) {

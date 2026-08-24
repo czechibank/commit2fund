@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import { EmptyState } from "@/components/empty-state";
 
 export default async function ContributionsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -28,7 +29,13 @@ export default async function ContributionsPage() {
       <h1 className="text-2xl font-bold">My Contributions</h1>
 
       {contributions.length === 0 ? (
-        <p className="text-muted-foreground">No contributions yet.</p>
+        <EmptyState command="fund log --author=you" output="0 commits (yet)">
+          Your funding history is a blank file.{" "}
+          <Link href="/" className="underline">
+            Find a campaign
+          </Link>{" "}
+          you believe in and make your first commit.
+        </EmptyState>
       ) : (
         <Table>
           <TableHeader>

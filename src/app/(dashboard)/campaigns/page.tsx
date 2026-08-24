@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { campaignService } from "@/domain/campaign-domain/campaign-service";
 import { CampaignCard } from "@/components/campaign/campaign-card";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -27,7 +28,10 @@ export default async function MyCampaignsPage() {
       </div>
 
       {campaigns.length === 0 ? (
-        <p className="text-muted-foreground">You haven&apos;t created any campaigns yet.</p>
+        <EmptyState command="fund campaigns --mine" output="no campaigns found">
+          Every campaign starts with one brave commit. Describe your idea, set a goal, and let the
+          community handle the rest.
+        </EmptyState>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {campaigns.map((c) => (

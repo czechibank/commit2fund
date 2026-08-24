@@ -21,7 +21,7 @@ export function LinkAccountForm() {
     const result = await linkCzechibankAccount(apiKey);
 
     if (result.success) {
-      toast.success("Account linked successfully");
+      toast.success("Czechibank linked. You can now create campaigns and fund others.");
       router.push("/dashboard");
       router.refresh();
     } else {

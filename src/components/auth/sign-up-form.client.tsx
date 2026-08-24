@@ -46,7 +46,12 @@ export function SignUpForm() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Sign up</CardTitle>
-        <CardDescription>Create your commit2fund account</CardDescription>
+        <CardDescription>
+          <code className="rounded border bg-muted px-1 py-0.5 font-mono text-xs text-foreground">
+            fund init
+          </code>{" "}
+          your commit2fund account.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

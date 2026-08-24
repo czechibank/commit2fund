@@ -45,7 +45,7 @@ export function SignInForm() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
-        <CardDescription>Sign in to your commit2fund account</CardDescription>
+        <CardDescription>Welcome back to the repo.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
