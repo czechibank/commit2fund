@@ -6,6 +6,7 @@ import { contributionService } from "@/domain/contribution-domain/contribution-s
 import { userService } from "@/domain/user-domain/user-service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CampaignStatusBadge } from "@/components/campaign/campaign-status-badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -36,9 +37,9 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       {user && !user.czechibankLinked && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-(--chart-4)/50 bg-(--chart-4)/10">
           <CardContent className="flex items-center justify-between pt-6">
-            <p className="text-sm text-amber-800">
+            <p className="text-sm">
               Link your Czechibank account to create campaigns and contribute.
             </p>
             <Button asChild size="sm">
@@ -80,12 +81,20 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             {myCampaigns.campaigns.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No campaigns yet.{" "}
-                <Link href="/campaigns/new" className="underline">
-                  Create one
-                </Link>
-              </p>
+              <div className="space-y-2">
+                <code className="inline-block rounded border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+                  <span className="select-none text-muted-foreground">$ </span>fund status
+                </code>
+                <p className="font-mono text-xs text-muted-foreground">
+                  nothing to commit, working tree clean
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <Link href="/campaigns/new" className="underline">
+                    Start your first campaign
+                  </Link>{" "}
+                  and change that.
+                </p>
+              </div>
             ) : (
               <ul className="space-y-2">
                 {myCampaigns.campaigns.map((c) => (
@@ -93,7 +102,7 @@ export default async function DashboardPage() {
                     <Link href={`/campaign/${c.id}`} className="hover:underline">
                       {c.title}
                     </Link>
-                    <Badge variant="secondary">{c.status}</Badge>
+                    <CampaignStatusBadge status={c.status} />
                   </li>
                 ))}
               </ul>
@@ -106,13 +115,23 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             {myContributions.contributions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No contributions yet.</p>
+              <div className="space-y-2">
+                <code className="inline-block rounded border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+                  <span className="select-none text-muted-foreground">$ </span>fund log
+                </code>
+                <p className="font-mono text-xs text-muted-foreground">0 commits</p>
+                <p className="text-sm text-muted-foreground">
+                  Fund a campaign and it will show up here. Your future self approves.
+                </p>
+              </div>
             ) : (
               <ul className="space-y-2">
                 {myContributions.contributions.map((c) => (
                   <li key={c.id} className="flex items-center justify-between text-sm">
                     <span>{c.campaignTitle}</span>
-                    <span className="font-medium">{c.amount} CZECHITOKEN</span>
+                    <span className="font-mono font-medium tabular-nums">
+                      {c.amount.toLocaleString()} CZT
+                    </span>
                   </li>
                 ))}
               </ul>

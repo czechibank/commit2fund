@@ -7,8 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { slugify } from "@/lib/utils";
 import { CampaignProgress } from "./campaign-progress";
+import { CampaignStatusBadge } from "./campaign-status-badge";
 
 interface CampaignCardProps {
   id: string;
@@ -29,24 +30,28 @@ export function CampaignCard({
   deadline,
   status,
 }: CampaignCardProps) {
-  const variant =
-    status === "completed" ? "default" : status === "cancelled" ? "destructive" : "secondary";
-
   return (
     <Link href={`/campaign/${id}`}>
-      <Card className="transition-shadow hover:shadow-md">
+      <Card className="gap-4 overflow-hidden pt-0 transition-[translate,box-shadow] hover:-translate-y-0.5 hover:shadow-md">
+        <div className="flex items-center justify-between gap-3 border-b bg-muted/60 px-4 py-2">
+          <span className="truncate font-mono text-xs text-muted-foreground">
+            ~/campaigns/{slugify(title)}
+          </span>
+          <CampaignStatusBadge status={status} />
+        </div>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <CardTitle className="line-clamp-1">{title}</CardTitle>
-            <Badge variant={variant}>{status}</Badge>
-          </div>
+          <CardTitle className="line-clamp-1">{title}</CardTitle>
           <CardDescription className="line-clamp-2">{description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <CampaignProgress currentAmount={currentAmount} targetAmount={targetAmount} />
+          <CampaignProgress
+            currentAmount={currentAmount}
+            targetAmount={targetAmount}
+            status={status}
+          />
         </CardContent>
-        <CardFooter className="text-sm text-muted-foreground">
-          Deadline: {new Date(deadline).toLocaleDateString()}
+        <CardFooter className="font-mono text-xs text-muted-foreground">
+          deadline: {new Date(deadline).toLocaleDateString()}
         </CardFooter>
       </Card>
     </Link>
