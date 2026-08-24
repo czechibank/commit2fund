@@ -1,0 +1,67 @@
+# Production stack: app + PostgreSQL + one-shot migrations.
+# Deploy in Coolify as a "Docker Compose" resource pointing at this file.
+#
+# Required environment variables (set them in Coolify's UI, or a .env
+# file next to this compose file):
+#   PUBLIC_URL           https://commit2fund.example.com (the public app URL)
+#   AUTH_SECRET          32+ random chars (openssl rand -base64 32)
+#   CZECHIBANK_API_URL   where the Czechibank API lives
+#   POSTGRES_PASSWORD    database password (defaults to commit2fund)
+#
+# Czechibank itself is deliberately NOT part of this stack: the whole
+# point of the app is that users bring accounts from a shared Czechibank
+# instance. If you do want a private one, add its services here and point
+# CZECHIBANK_API_URL at the internal hostname.
+
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: commit2fund
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-commit2fund}
+      POSTGRES_DB: commit2fund
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U commit2fund -d commit2fund"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: source
+    command: ["pnpm", "run", "db:migrate"]
+    environment:
+      DATABASE_URL: postgres://commit2fund:${POSTGRES_PASSWORD:-commit2fund}@db:5432/commit2fund
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost:3001}
+    restart: always
+    ports:
+      - "${APP_PORT:-3001}:3001"
+    environment:
+      DATABASE_URL: postgres://commit2fund:${POSTGRES_PASSWORD:-commit2fund}@db:5432/commit2fund
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+      BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3001}
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost:3001}
+      CZECHIBANK_API_URL: ${CZECHIBANK_API_URL:?set CZECHIBANK_API_URL}
+      HOST: ${HOST:-localhost:3001}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:
