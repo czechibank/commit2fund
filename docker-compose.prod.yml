@@ -46,15 +46,15 @@ services:
       context: .
       target: runner
       args:
-        NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost:3001}
+        NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:?set PUBLIC_URL to the public https URL of the app}
     restart: always
     ports:
       - "${APP_PORT:-3001}:3001"
     environment:
       DATABASE_URL: postgres://commit2fund:${POSTGRES_PASSWORD:-commit2fund}@db:5432/commit2fund
       AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
-      BETTER_AUTH_URL: ${PUBLIC_URL:-http://localhost:3001}
-      NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost:3001}
+      BETTER_AUTH_URL: ${PUBLIC_URL:?set PUBLIC_URL to the public https URL of the app}
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:?set PUBLIC_URL to the public https URL of the app}
       CZECHIBANK_API_URL: ${CZECHIBANK_API_URL:?set CZECHIBANK_API_URL}
       HOST: ${HOST:-localhost:3001}
     depends_on:
